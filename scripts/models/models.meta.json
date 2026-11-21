@@ -1,0 +1,407 @@
+{
+  "sofa-velvet": {
+    "glb": "/models/sofa-velvet.glb",
+    "bytes": 501036,
+    "native": {
+      "w": 218.8,
+      "h": 78.8,
+      "d": 102.3
+    },
+    "min": [
+      -1.094,
+      0,
+      -0.511
+    ],
+    "max": [
+      1.094,
+      0.788,
+      0.511
+    ],
+    "materials": [
+      "Legs",
+      "Feet",
+      "Fabric"
+    ],
+    "tintMaterials": [
+      "Fabric"
+    ],
+    "triangles": 4196
+  },
+  "sofa-classic": {
+    "glb": "/models/sofa-classic.glb",
+    "bytes": 2611108,
+    "native": {
+      "w": 157.1,
+      "h": 79.7,
+      "d": 65.8
+    },
+    "min": [
+      -0.786,
+      0,
+      -0.329
+    ],
+    "max": [
+      0.786,
+      0.797,
+      0.329
+    ],
+    "materials": [
+      "Frame",
+      "Fabric"
+    ],
+    "tintMaterials": [
+      "Fabric"
+    ],
+    "triangles": 4101
+  },
+  "sofa-chesterfield": {
+    "glb": "/models/sofa-chesterfield.glb",
+    "bytes": 538340,
+    "native": {
+      "w": 180.7,
+      "h": 70.9,
+      "d": 81.8
+    },
+    "min": [
+      -0.904,
+      0,
+      -0.409
+    ],
+    "max": [
+      0.904,
+      0.709,
+      0.409
+    ],
+    "materials": [
+      "Frame",
+      "Leather"
+    ],
+    "tintMaterials": [
+      "Leather"
+    ],
+    "triangles": 2728
+  },
+  "armchair-tufted": {
+    "glb": "/models/armchair-tufted.glb",
+    "bytes": 616332,
+    "native": {
+      "w": 82.7,
+      "h": 68.6,
+      "d": 57
+    },
+    "min": [
+      -0.413,
+      0,
+      -0.285
+    ],
+    "max": [
+      0.413,
+      0.686,
+      0.285
+    ],
+    "materials": [
+      "Fabric",
+      "Wood",
+      "Metal"
+    ],
+    "tintMaterials": [
+      "Fabric"
+    ],
+    "triangles": 39808
+  },
+  "armchair-classic": {
+    "glb": "/models/armchair-classic.glb",
+    "bytes": 934144,
+    "native": {
+      "w": 84.8,
+      "h": 106.5,
+      "d": 76.6
+    },
+    "min": [
+      -0.424,
+      0,
+      -0.383
+    ],
+    "max": [
+      0.424,
+      1.065,
+      0.383
+    ],
+    "materials": [
+      "Frame",
+      "Fabric"
+    ],
+    "tintMaterials": [
+      "Fabric"
+    ],
+    "triangles": 5625
+  },
+  "bed-carved": {
+    "glb": "/models/bed-carved.glb",
+    "bytes": 840408,
+    "native": {
+      "w": 149.4,
+      "h": 153.4,
+      "d": 204
+    },
+    "min": [
+      -0.747,
+      0,
+      -1.02
+    ],
+    "max": [
+      0.747,
+      1.534,
+      1.02
+    ],
+    "materials": [
+      "Bedding",
+      "Wood"
+    ],
+    "tintMaterials": [
+      "Wood"
+    ],
+    "triangles": 18745
+  },
+  "wardrobe-carved": {
+    "glb": "/models/wardrobe-carved.glb",
+    "bytes": 813120,
+    "native": {
+      "w": 171.9,
+      "h": 236.1,
+      "d": 60.9
+    },
+    "min": [
+      -0.86,
+      0,
+      -0.305
+    ],
+    "max": [
+      0.86,
+      2.361,
+      0.305
+    ],
+    "materials": [
+      "Hardware",
+      "Wood"
+    ],
+    "tintMaterials": [
+      "Wood"
+    ],
+    "triangles": 12170
+  },
+  "dresser-carved": {
+    "glb": "/models/dresser-carved.glb",
+    "bytes": 617224,
+    "native": {
+      "w": 120.1,
+      "h": 121.2,
+      "d": 58.1
+    },
+    "min": [
+      -0.601,
+      0,
+      -0.29
+    ],
+    "max": [
+      0.601,
+      1.212,
+      0.29
+    ],
+    "materials": [
+      "Wood"
+    ],
+    "tintMaterials": [
+      "Wood"
+    ],
+    "triangles": 3897
+  },
+  "dining-table-round": {
+    "glb": "/models/dining-table-round.glb",
+    "bytes": 402656,
+    "native": {
+      "w": 139.9,
+      "h": 76.4,
+      "d": 139.9
+    },
+    "min": [
+      -0.7,
+      0,
+      -0.7
+    ],
+    "max": [
+      0.7,
+      0.764,
+      0.7
+    ],
+    "materials": [
+      "Wood"
+    ],
+    "tintMaterials": [
+      "Wood"
+    ],
+    "triangles": 8640
+  },
+  "dining-chair-tufted": {
+    "glb": "/models/dining-chair-tufted.glb",
+    "bytes": 632384,
+    "native": {
+      "w": 43.4,
+      "h": 97.3,
+      "d": 57.6
+    },
+    "min": [
+      -0.217,
+      0,
+      -0.288
+    ],
+    "max": [
+      0.217,
+      0.973,
+      0.288
+    ],
+    "materials": [
+      "Legs",
+      "Upholstery"
+    ],
+    "tintMaterials": [
+      "Upholstery"
+    ],
+    "triangles": 22013
+  },
+  "coffee-table-modern": {
+    "glb": "/models/coffee-table-modern.glb",
+    "bytes": 419692,
+    "native": {
+      "w": 120.2,
+      "h": 39,
+      "d": 60
+    },
+    "min": [
+      -0.601,
+      0,
+      -0.3
+    ],
+    "max": [
+      0.601,
+      0.39,
+      0.3
+    ],
+    "materials": [
+      "Top",
+      "Wood"
+    ],
+    "tintMaterials": [
+      "Wood"
+    ],
+    "triangles": 4504
+  },
+  "tv-unit-slatted": {
+    "glb": "/models/tv-unit-slatted.glb",
+    "bytes": 732456,
+    "native": {
+      "w": 244,
+      "h": 68,
+      "d": 52
+    },
+    "min": [
+      -1.22,
+      0,
+      -0.26
+    ],
+    "max": [
+      1.22,
+      0.68,
+      0.26
+    ],
+    "materials": [
+      "Metal",
+      "Wood"
+    ],
+    "tintMaterials": [
+      "Wood"
+    ],
+    "triangles": 24976
+  },
+  "side-table-oak": {
+    "glb": "/models/side-table-oak.glb",
+    "bytes": 637328,
+    "native": {
+      "w": 55,
+      "h": 55.1,
+      "d": 45
+    },
+    "min": [
+      -0.275,
+      0,
+      -0.225
+    ],
+    "max": [
+      0.275,
+      0.551,
+      0.225
+    ],
+    "materials": [
+      "Hardware",
+      "Wood"
+    ],
+    "tintMaterials": [
+      "Wood"
+    ],
+    "triangles": 2756
+  },
+  "bookshelf-cube": {
+    "glb": "/models/bookshelf-cube.glb",
+    "bytes": 542516,
+    "native": {
+      "w": 107.8,
+      "h": 155.6,
+      "d": 37.1
+    },
+    "min": [
+      -0.539,
+      0,
+      -0.186
+    ],
+    "max": [
+      0.539,
+      1.556,
+      0.186
+    ],
+    "materials": [
+      "Bins",
+      "Wood"
+    ],
+    "tintMaterials": [
+      "Wood"
+    ],
+    "triangles": 3174
+  },
+  "desk-office": {
+    "glb": "/models/desk-office.glb",
+    "bytes": 566860,
+    "native": {
+      "w": 200,
+      "h": 78.7,
+      "d": 94.7
+    },
+    "min": [
+      -1,
+      0,
+      -0.474
+    ],
+    "max": [
+      1,
+      0.787,
+      0.474
+    ],
+    "materials": [
+      "Top",
+      "Body"
+    ],
+    "tintMaterials": [
+      "Body"
+    ],
+    "triangles": 6898
+  }
+}

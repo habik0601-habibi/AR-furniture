@@ -1,0 +1,74 @@
+@import 'tailwindcss';
+
+/*
+ * RoomSense identity: "architect's desk".
+ * Warm drafting paper, deep pine ink, a clay accent for the one thing to press,
+ * and a sage tone for "it fits". Fraunces for headings (editorial, warm),
+ * Manrope for everything functional.
+ */
+@theme {
+  --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Fraunces', ui-serif, Georgia, serif;
+
+  --color-paper: #f6f3ee;
+  --color-paper-2: #efe9e0;
+  --color-card: #fffdf9;
+  --color-line: #e2dacd;
+  --color-ink: #1d2a26;
+  --color-ink-2: #44514c;
+  --color-muted: #7a837f;
+  --color-clay: #c8653a;
+  --color-clay-2: #a94f28;
+  --color-sage: #3f7d64;
+  --color-sage-soft: #e3efe8;
+  --color-amber: #b7791f;
+  --color-amber-soft: #f8ecd6;
+  --color-danger: #b4433a;
+  --color-danger-soft: #f7e3e0;
+
+  --radius-xl: 1rem;
+  --radius-2xl: 1.4rem;
+  --shadow-soft: 0 1px 2px rgb(29 42 38 / 0.05), 0 8px 24px -12px rgb(29 42 38 / 0.18);
+  --shadow-lift: 0 2px 4px rgb(29 42 38 / 0.06), 0 18px 40px -18px rgb(29 42 38 / 0.35);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    color-scheme: light;
+  }
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.015em;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-clay);
+    outline-offset: 2px;
+  }
+  button { cursor: pointer; }
+  button:disabled { cursor: not-allowed; }
+}
+
+/* faint drafting grid used behind plans and the hero */
+.grid-paper {
+  background-image:
+    linear-gradient(to right, rgb(29 42 38 / 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(29 42 38 / 0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
