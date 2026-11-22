@@ -114,23 +114,40 @@ export default function Embed() {
 
   if (inline) {
     return (
-      <div className="relative h-dvh w-full overflow-hidden bg-[#f3efe8]">
-        {viewer}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-3">
-          <div className="pointer-events-auto flex gap-1.5 rounded-full bg-card/90 p-1.5 shadow-soft backdrop-blur">
-            {product.finishes.slice(0, 6).map((f) => (
+      // The colours and "Will it fit?" live in their own bar UNDER the model, not on top of it:
+      // the viewer already puts its AR button at the bottom-right of the model, and on a phone
+      // there is no room for three things in one strip.
+      <div className="flex h-dvh w-full flex-col overflow-hidden bg-[#f3efe8]">
+        <div className="relative min-h-0 flex-1">
+          <div className="absolute inset-0">{viewer}</div>
+        </div>
+        <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-2 border-t border-line/70 bg-card/85 px-3 py-2.5">
+          <div role="group" aria-label={`Finish: ${finish.name}`} className="flex basis-full items-center gap-2 overflow-x-auto py-1 min-[480px]:min-w-0 min-[480px]:flex-1 min-[480px]:basis-0">
+            {product.finishes.slice(0, 8).map((f) => (
               <button
                 key={f.id}
                 onClick={() => setFinishId(f.id)}
                 aria-label={f.name}
                 aria-pressed={f.id === finish.id}
                 title={f.name}
-                className={cx('h-7 w-7 rounded-full border-2', f.id === finish.id ? 'border-ink' : 'border-white')}
+                className={cx(
+                  'relative h-10 w-10 shrink-0 rounded-full ring-offset-2 ring-offset-card transition-shadow',
+                  f.id === finish.id ? 'ring-2 ring-ink' : 'ring-1 ring-line',
+                )}
                 style={{ background: f.color }}
-              />
+              >
+                {f.id === finish.id && (
+                  <span className="absolute inset-0 grid place-items-center text-white mix-blend-difference">
+                    <Icon name="check" size={16} />
+                  </span>
+                )}
+              </button>
             ))}
           </div>
-          <button onClick={() => openFull('room')} className="pointer-events-auto flex h-10 items-center gap-1.5 rounded-full bg-ink px-4 text-sm font-semibold text-paper shadow-soft">
+          <button
+            onClick={() => openFull('room')}
+            className="flex h-11 grow items-center justify-center gap-1.5 rounded-full bg-ink px-5 text-sm font-semibold text-paper hover:bg-ink-2 min-[480px]:grow-0"
+          >
             <Icon name="ruler" size={16} /> Will it fit?
           </button>
         </div>

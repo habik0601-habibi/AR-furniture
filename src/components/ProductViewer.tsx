@@ -381,7 +381,7 @@ export function ProductViewer({
             <path d="M12 2.5 3.5 7v10l8.5 4.5 8.5-4.5V7L12 2.5Z" strokeLinejoin="round" />
             <path d="M3.5 7 12 11.5 20.5 7M12 11.5v10" strokeLinejoin="round" />
           </svg>
-          View in your room
+          View in AR
         </button>
 
         {/* Dimension overlay */}
