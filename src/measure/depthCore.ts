@@ -4,13 +4,29 @@
  * script, or a dynamic import on the main thread), so the library and the model
  * are fetched only when the user taps "Auto-detect". transformers.js is imported
  * statically here so the worker bundle needs no code splitting.
+ *
+ * Memory. The model's working memory grows with the square of the input size, and
+ * phones have little to spare, so the input is kept small and the run steps down
+ * a ladder when memory runs out (see `buildPlans`). Measured in Node with the same
+ * int8 weights (scripts/depth-memory-probe.mjs):
+ *
+ *   input   extra memory   speed    depth map vs the 518 px default
+ *   518 px  161 MB         413 ms   (reference)
+ *   364 px  148 MB         353 ms   correlation 0.995
+ *   266 px   68 MB         172 ms   correlation 0.986
+ *   196 px   41 MB         122 ms   correlation 0.943
+ *
+ * and, at 266 px, switching off ONNX Runtime's memory arena cut the extra memory
+ * from 68 MB to 9 MB. These are desktop numbers: the phone runs WebAssembly, so the
+ * absolute figures differ. They have not been confirmed on a phone.
  */
 import { env, pipeline, RawImage } from '@huggingface/transformers'
 import { DEPTH_MODEL_ID } from './depthModel'
+import { buildPlans, isPhoneLike, type DepthDevice, type DepthDtype, type DepthPlan } from './depthPlan'
 
 export { DEPTH_MODEL_ID }
 
-export type DepthDevice = 'webgpu' | 'wasm'
+export type { DepthDevice }
 
 export interface DepthProgressEvent {
   phase: 'download' | 'init' | 'inference'
@@ -26,22 +42,31 @@ export interface DepthResultData {
   height: number
   data: Float32Array
   device: DepthDevice
+  /** Long side the network actually ran at (a multiple of 14). */
+  inputSize: number
 }
 
 interface DepthOutput {
   predicted_depth: { data: ArrayLike<number>; dims: number[] }
 }
-type DepthPipe = ((image: unknown) => Promise<DepthOutput | DepthOutput[]>) & { dispose?: () => Promise<void> }
+type DepthPipe = ((image: unknown) => Promise<DepthOutput | DepthOutput[]>) & {
+  dispose?: () => Promise<void>
+  processor?: { image_processor?: { size?: { width: number; height: number } } }
+}
 
-let cached: { pipe: DepthPipe; device: DepthDevice } | null = null
+let cached: { pipe: DepthPipe; device: DepthDevice; dtype: DepthDtype } | null = null
 
 interface GpuLike {
   requestAdapter(): Promise<{ features: { has(f: string): boolean } } | null>
 }
 
+function nav(): { gpu?: GpuLike; userAgent?: string; maxTouchPoints?: number; deviceMemory?: number } | undefined {
+  return globalThis.navigator as unknown as ReturnType<typeof nav>
+}
+
 async function webgpuUsable(): Promise<boolean> {
   try {
-    const gpu = (globalThis.navigator as unknown as { gpu?: GpuLike } | undefined)?.gpu
+    const gpu = nav()?.gpu
     if (!gpu) return false
     const adapter = await gpu.requestAdapter()
     // fp16 weights need the shader-f16 feature; without it, WASM is the safer path.
@@ -51,12 +76,23 @@ async function webgpuUsable(): Promise<boolean> {
   }
 }
 
-async function loadPipe(onProgress: (e: DepthProgressEvent) => void): Promise<{ pipe: DepthPipe; device: DepthDevice }> {
-  if (cached) return cached
+async function disposeCached(): Promise<void> {
+  const old = cached
+  cached = null
+  try {
+    await old?.pipe.dispose?.()
+  } catch {
+    /* already gone */
+  }
+}
+
+async function loadPipe(plan: DepthPlan, onProgress: (e: DepthProgressEvent) => void): Promise<DepthPipe> {
+  if (cached && cached.device === plan.device && cached.dtype === plan.dtype) return cached.pipe
+  await disposeCached()
   env.allowLocalModels = false
 
   const files = new Map<string, { loaded: number; total: number }>()
-  const progress_callback = (device: DepthDevice) => (info: { status: string; file?: string; loaded?: number; total?: number }) => {
+  const progress_callback = (info: { status: string; file?: string; loaded?: number; total?: number }) => {
     if (info.status === 'progress' && info.file) {
       files.set(info.file, { loaded: info.loaded ?? 0, total: info.total ?? 0 })
       let loaded = 0
@@ -65,32 +101,22 @@ async function loadPipe(onProgress: (e: DepthProgressEvent) => void): Promise<{ 
         loaded += f.loaded
         total += f.total
       }
-      onProgress({ phase: 'download', fraction: total ? loaded / total : undefined, loadedBytes: loaded, totalBytes: total, device })
+      onProgress({ phase: 'download', fraction: total ? loaded / total : undefined, loadedBytes: loaded, totalBytes: total, device: plan.device })
     } else if (info.status === 'ready') {
-      onProgress({ phase: 'init', device })
+      onProgress({ phase: 'init', device: plan.device })
     }
   }
 
-  const attempts: { device: DepthDevice; dtype: 'fp16' | 'q8' }[] = []
-  if (await webgpuUsable()) attempts.push({ device: 'webgpu', dtype: 'fp16' }) // ~50 MB
-  attempts.push({ device: 'wasm', dtype: 'q8' }) // ~27 MB, int8 quantised
-
-  let lastErr: unknown = null
-  for (const a of attempts) {
-    try {
-      files.clear()
-      const pipe = (await pipeline('depth-estimation', DEPTH_MODEL_ID, {
-        device: a.device,
-        dtype: a.dtype,
-        progress_callback: progress_callback(a.device),
-      })) as unknown as DepthPipe
-      cached = { pipe, device: a.device }
-      return cached
-    } catch (err) {
-      lastErr = err
-    }
-  }
-  throw lastErr instanceof Error ? lastErr : new Error('Could not load the depth model')
+  const pipe = (await pipeline('depth-estimation', DEPTH_MODEL_ID, {
+    device: plan.device,
+    dtype: plan.dtype,
+    progress_callback,
+    // ONNX Runtime keeps a large scratch arena by default; dropping it saved most of the
+    // working memory in the desktop measurements above. CPU/WASM path only.
+    ...(plan.device === 'wasm' ? { session_options: { enableMemPattern: false, enableCpuMemArena: false } } : {}),
+  })) as unknown as DepthPipe
+  cached = { pipe, device: plan.device, dtype: plan.dtype }
+  return pipe
 }
 
 /** Estimate relative inverse depth for an RGBA image (already downscaled by the caller). */
@@ -100,12 +126,26 @@ export async function runDepth(
   height: number,
   onProgress: (e: DepthProgressEvent) => void,
 ): Promise<DepthResultData> {
-  const { pipe, device } = await loadPipe(onProgress)
-  onProgress({ phase: 'inference', device })
-  const image = new RawImage(rgba, width, height, 4)
-  const out = await pipe(image)
-  const first = Array.isArray(out) ? out[0] : out
-  const pd = first.predicted_depth
-  const [h, w] = pd.dims.slice(-2)
-  return { width: w, height: h, data: Float32Array.from(pd.data), device }
+  const plans = buildPlans({ phone: isPhoneLike(nav()), webgpu: await webgpuUsable() })
+  let lastErr: unknown = null
+
+  for (const plan of plans) {
+    try {
+      const pipe = await loadPipe(plan, onProgress)
+      const ip = pipe.processor?.image_processor
+      if (ip) ip.size = { width: plan.size, height: plan.size }
+      onProgress({ phase: 'inference', device: plan.device })
+      const out = await pipe(new RawImage(rgba, width, height, 4))
+      const first = Array.isArray(out) ? out[0] : out
+      const pd = first.predicted_depth
+      const [h, w] = pd.dims.slice(-2)
+      return { width: w, height: h, data: Float32Array.from(pd.data), device: plan.device, inputSize: plan.size }
+    } catch (err) {
+      lastErr = err
+      // A run that failed part-way (typically out of memory) can leave the session unusable:
+      // release it before trying the next, lighter rung.
+      await disposeCached()
+    }
+  }
+  throw lastErr instanceof Error ? lastErr : new Error('Could not run the depth model')
 }

@@ -99,7 +99,7 @@ Other modelled limitations: lens distortion is ignored (the UI asks for the 1× 
 
 ## 4. AI assist: monocular depth (`aiDepth.ts`, `depthAnalysis.ts`)
 
-**Model.** `onnx-community/depth-anything-v2-small` (Depth Anything V2, ViT-S, ~25 M parameters, Apache-2.0) run in the browser with transformers.js v3 `pipeline('depth-estimation')`. WebGPU with fp16 weights (~50 MB) when the adapter supports `shader-f16`; otherwise WebAssembly with int8-quantised weights (~27 MB). It is downloaded only when the user taps "Auto-detect", with a progress bar, cached by the browser afterwards, and run in a Web Worker so the UI stays responsive (main-thread fallback if the worker cannot start). The photo is downscaled to 512 px and never leaves the phone.
+**Model.** `onnx-community/depth-anything-v2-small` (Depth Anything V2, ViT-S, ~25 M parameters, Apache-2.0) run in the browser with transformers.js v3 `pipeline('depth-estimation')`. On a computer with WebGPU it uses fp16 weights (~50 MB); on phones, and wherever WebGPU is missing, WebAssembly with int8-quantised weights (~27 MB). It is downloaded only when the user taps "Auto-detect", with a progress bar, cached by the browser afterwards, and run in a Web Worker so the UI stays responsive (main-thread fallback if the worker cannot start). The photo is downscaled to 512 px and never leaves the phone.
 
 **Why geometry, not just "AI says 4.2 m".** Depth Anything predicts *relative*, affine-invariant inverse depth: d = s·(1/Z) + t with unknown s and t per image. It cannot give metres by itself. We use a property that holds exactly for a pinhole camera: for any plane, 1/Z is an affine function of the pixel coordinates, 1/Z = a·u + b·v + c. An affine function of an affine function is affine, so **the floor and each wall are still planes in (u, v, d) space** regardless of s and t. The analysis:
 
@@ -118,4 +118,22 @@ Metric values still come only from the reference-sheet homography; the network o
 
 - Verified by unit tests (Vitest, 37 tests): homography maths, focal/orientation logic, error propagation incl. Monte-Carlo agreement, rectangle fitting (rotated, noisy, 3-point, L-shaped, CCW), opening mapping, the full photo pipeline on synthetic photos, and the depth analysis on synthetic depth maps.
 - The production build bundles the depth worker and lazy-loads three.js (AR) and transformers.js separately.
-- Not verified without devices: the WebXR session on a real Android phone (written against the WebXR, Hit Test and DOM Overlay specs), touch handling and the loupe on iPhone Safari, the depth model's download, speed and memory use on phones, and real-world accuracy. WebXR requires HTTPS: test through a tunnel or a self-signed HTTPS dev server, not plain `http://<LAN-IP>`.
+**Memory (changed after a phone test).** On the first phone test the model downloaded and then failed with an out-of-memory message, so shoppers had to type the size by hand. The loader (`depthCore.ts`, ladder in `depthPlan.ts`) now:
+
+1. never uses WebGPU on phones (its memory is shared with the page);
+2. feeds the network a smaller image: 266 px on phones instead of the library's default 518, and steps down to 196 px if that still fails, because working memory grows with the square of the input;
+3. switches off ONNX Runtime's scratch-memory arena on the WebAssembly path;
+4. catches a failure *while the model runs* (previously only failures while loading were caught), releases the session and retries on the next, lighter rung.
+
+Measured on a desktop with the same int8 weights (`scripts/depth-memory-probe.mjs`, native ONNX Runtime in Node, one fresh process per size, a standard indoor test photo):
+
+| Input | Extra memory while running | Speed | Depth map vs the 518 px default (correlation) |
+|---|---|---|---|
+| 518 px (old default) | 161 MB | 413 ms | reference |
+| 364 px | 148 MB | 353 ms | 0.995 |
+| 266 px | 68 MB | 172 ms | 0.986 |
+| 196 px | 41 MB | 122 ms | 0.943 |
+
+At 266 px, switching off the memory arena cut the extra memory from 68 MB to 9 MB, and the whole process peak from 322 MB (old settings) to 148 MB. **These are desktop figures.** A phone runs WebAssembly, whose absolute numbers differ, and this change has not yet been confirmed on a phone. The depth map is slightly less detailed at smaller sizes; the suggested corners are always confirmed or dragged by the user.
+
+- Not verified without devices: the WebXR session on a real Android phone (written against the WebXR, Hit Test and DOM Overlay specs), touch handling and the loupe on iPhone Safari, the depth model's speed and memory use on phones (the memory reduction above is measured on a desktop only), and real-world accuracy. WebXR requires HTTPS: test through a tunnel or a self-signed HTTPS dev server, not plain `http://<LAN-IP>`.

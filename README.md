@@ -67,6 +67,7 @@ Also verified from a different origin (the example site on one port, RoomSense o
 
 Not verified yet:
 * **AR and camera inside another site's page on a real phone.** The widget runs RoomSense in a frame with camera and AR permissions granted, but a frame can behave differently from a full page on iPhone and Android.
+* **The AI corner step on a phone.** On the first phone test the depth model ran out of memory. It now runs smaller and lighter and retries if it fails (see `docs/measurement.md`), which reduced memory in desktop measurements, but it has not been re-tested on a phone.
 * **AR and camera on a real phone.** WebXR measurement (Android), AR Quick Look (iPhone), photo measurement with touch, and the AI depth model have not run on a phone. They need HTTPS, so test them on the Vercel deployment.
 * **Real-world measurement accuracy.** Figures in `docs/measurement.md` come from simulation.
 * **The dashboard screens** were checked through their database calls (`scripts/check-dashboard.mjs`), not clicked through in a browser.
