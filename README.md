@@ -55,13 +55,18 @@ npm test
 | Spatial engine (`src/engine`) | 49 | Layout safety over 30 random rooms (inside room, no overlap, doors and windows kept clear), locked items, sofa/coffee-table/TV relations, walkway search, corner-turn formula against closed forms, doorway/stairs/lift cases, fit verdicts, recommendations, delivery vehicle choice, ΔE2000 reference pairs, k-means |
 | Measurement (`src/measure`) | 37 | Homography recovery and invariance, A4 mapping on a synthetic perspective photo, error model vs simulated tapping noise, rectangle fitting, door/window snapping, depth-map floor and wall detection |
 
+`node scripts/check-hearth.mjs` checks the cross-site demo: a quote sent from the separate Hearth & Home website reaches only that store's owner.
+
 `node scripts/check-dashboard.mjs` signs in as the demo owners and checks the security rules on the live database: one store cannot read another store's quote requests or analytics, and anonymous shoppers cannot read quotes or insert events directly.
 
 ## Status: what is verified and what is not
 
 Verified in the browser (desktop): the landing page, both demo shops, the widget, all six shopper steps (3D viewer with live recolouring and hotspots, sample and typed rooms, automatic layout and drag editing, fit report, delivery path and cost, recommendations, quote request), and the quote arriving in the store's data.
 
+Also verified from a different origin (the example site on one port, RoomSense on another): the widget button, the inline 3D view, the full overlay, closing it, and a quote request reaching the right store.
+
 Not verified yet:
+* **AR and camera inside another site's page on a real phone.** The widget runs RoomSense in a frame with camera and AR permissions granted, but a frame can behave differently from a full page on iPhone and Android.
 * **AR and camera on a real phone.** WebXR measurement (Android), AR Quick Look (iPhone), photo measurement with touch, and the AI depth model have not run on a phone. They need HTTPS, so test them on the Vercel deployment.
 * **Real-world measurement accuracy.** Figures in `docs/measurement.md` come from simulation.
 * **The dashboard screens** were checked through their database calls (`scripts/check-dashboard.mjs`), not clicked through in a browser.
@@ -76,12 +81,22 @@ Not verified yet:
 * Learn layout weights from real shopper choices instead of hand-tuned rules.
 * Multi-box shipments for flat-pack items; live courier rates instead of illustrative ones.
 * Urdu interface.
+* Enforce the allowed-websites list (`stores.allowed_origins`) so only a store's own site can embed its widget; today any site can.
 
 ## Deploy to Vercel
 
 1. Import the repository in Vercel. Framework preset **Vite**, build `npm run build`, output `dist`.
 2. Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` as environment variables.
 3. `vercel.json` rewrites all paths to `index.html` so `/embed/...` and `/demo/...` deep links work.
+
+## Demo websites
+
+| Site | Where | What it shows |
+|---|---|---|
+| Shahi Furniture, Nest Living | `/demo/shahi`, `/demo/nest` inside the RoomSense app | Two shops with different designs, built into the app for convenience |
+| **Hearth & Home** | [`examples/hearth-and-home`](examples/hearth-and-home), deployed as its **own** website | A plain HTML site, not part of RoomSense, that uses it by pasting the two lines: proof it works on a different website |
+
+All three are fictional stores. See [examples/hearth-and-home/README.md](examples/hearth-and-home/README.md) to deploy the separate site.
 
 ## Embed it on any site
 
