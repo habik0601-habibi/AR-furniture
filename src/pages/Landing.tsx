@@ -29,8 +29,8 @@ export default function Landing() {
           <nav className="flex items-center gap-1 text-sm font-semibold sm:gap-2">
             <a href="#features" className="hidden rounded-full px-3 py-2 text-ink-2 hover:text-ink sm:inline">Features</a>
             <a href="#engine" className="hidden rounded-full px-3 py-2 text-ink-2 hover:text-ink sm:inline">Spatial engine</a>
-            <Link to="/dashboard" className="rounded-full px-3 py-2 text-ink-2 hover:text-ink">Dashboard</Link>
-            <Link to="/demo/shahi" className="rounded-full bg-ink px-4 py-2 text-paper hover:bg-ink-2">Live demo</Link>
+            <Link to="/dashboard" className="hidden rounded-full px-3 py-2 text-ink-2 hover:text-ink min-[400px]:inline">Dashboard</Link>
+            <Link to="/demo/shahi" className="whitespace-nowrap rounded-full bg-ink px-4 py-2 text-paper hover:bg-ink-2">Live demo</Link>
           </nav>
         </div>
       </header>
@@ -164,7 +164,10 @@ export default function Landing() {
       <footer className="border-t border-line">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-8 text-sm text-muted sm:px-6">
           <Logo />
-          <p>University project. Demo shops and products are fictional. 3D models are credited in the repository.</p>
+          <p>
+            University project. Demo shops and products are fictional. 3D models are credited in the repository.{' '}
+            <Link to="/dashboard" className="font-semibold text-ink-2 underline underline-offset-2">Store dashboard</Link>
+          </p>
         </div>
       </footer>
     </div>

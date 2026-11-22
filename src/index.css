@@ -53,6 +53,8 @@
     outline: 2px solid var(--color-clay);
     outline-offset: 2px;
   }
+  /* never let a stray wide element create a sideways page scroll */
+  body { overflow-x: clip; }
   button { cursor: pointer; }
   button:disabled { cursor: not-allowed; }
 }

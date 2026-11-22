@@ -159,13 +159,14 @@ export default function Embed() {
         </div>
       </header>
 
-      <div className="grid min-h-0 flex-1 grid-rows-[minmax(240px,42%)_1fr] lg:grid-cols-[1.15fr_1fr] lg:grid-rows-1">
-        <section className="relative min-h-0 bg-[#f3efe8]" aria-label="3D view">
+      {/* minmax(0, …) columns: without them the six-tab step bar widens the whole grid on phones */}
+      <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] grid-rows-[minmax(240px,42%)_1fr] lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:grid-rows-1">
+        <section className="relative min-h-0 min-w-0 bg-[#f3efe8]" aria-label="3D view">
           {viewer}
           {arMessage && <Notice tone="warn" className="absolute inset-x-3 top-3">{arMessage}</Notice>}
         </section>
 
-        <section className="flex min-h-0 flex-col border-line lg:border-l">
+        <section className="flex min-h-0 min-w-0 flex-col border-line lg:border-l">
           <nav aria-label="Steps" className="shrink-0 overflow-x-auto border-b border-line bg-card">
             <ol className="flex min-w-max px-2">
               {STEPS.map((s, i) => (
