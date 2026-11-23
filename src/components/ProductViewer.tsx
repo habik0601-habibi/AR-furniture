@@ -10,6 +10,7 @@
 import '@google/model-viewer'
 import type { ModelViewerElement } from '@google/model-viewer'
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
+import { noteArGuideShown, shouldShowArGuide } from './arGuide'
 import type { Dimensions } from '../engine/types'
 import type { Product } from '../data/types'
 
@@ -105,6 +106,17 @@ export function ProductViewer({
   const [canAR, setCanAR] = useState<boolean | null>(null)
   const [openHotspot, setOpenHotspot] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
+  const [guideOpen, setGuideOpen] = useState(false)
+
+  // The camera screen that opens next belongs to the phone (Apple's AR Quick Look on iPhone,
+  // Scene Viewer or WebXR on Android), so the app cannot add buttons to it. What it can do is
+  // tell shoppers, just before it opens, which gestures move and turn the furniture there.
+  const openAr = () => {
+    noteArGuideShown()
+    setGuideOpen(false)
+    cbRef.current.onEvent?.('ar_started', { productId: product.id, mode: 'button' })
+    void mvRef.current?.activateAR()
+  }
 
   // Keep the latest callbacks without re-binding listeners.
   const cbRef = useRef({ onArStatus, onEvent })
@@ -374,6 +386,15 @@ export function ProductViewer({
         <button
           slot="ar-button"
           type="button"
+          onClickCapture={(e) => {
+            // Stop model-viewer's own click handler (it would open the camera at once) and show
+            // the how-to-move guide first. The guide's "Open camera" button opens it.
+            if (shouldShowArGuide()) {
+              e.stopPropagation()
+              e.preventDefault()
+              setGuideOpen(true)
+            }
+          }}
           onClick={() => cbRef.current.onEvent?.('ar_started', { productId: product.id, mode: 'button' })}
           className="absolute right-3 bottom-3 inline-flex items-center gap-2 rounded-full bg-stone-900 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-stone-900/20 transition hover:bg-stone-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600 active:scale-[0.98]"
         >
@@ -507,6 +528,59 @@ export function ProductViewer({
           >
             Retry
           </button>
+        </div>
+      )}
+
+      {/* How to move the furniture once the camera opens */}
+      {guideOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={`${uid}-ar-guide`}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') setGuideOpen(false)
+          }}
+          className="absolute inset-0 z-30 flex items-end justify-center bg-stone-900/45 p-3 backdrop-blur-[2px] sm:items-center"
+        >
+          <div className="max-h-full w-full max-w-sm overflow-y-auto rounded-2xl bg-white p-4 shadow-xl ring-1 ring-stone-900/10">
+            <h3 id={`${uid}-ar-guide`} className="text-base font-semibold text-stone-900">
+              Placing it in your room
+            </h3>
+            <ol className="mt-3 space-y-2.5 text-sm text-stone-700">
+              {[
+                ['Find the floor', 'Point the camera at the floor and move your phone slowly until the furniture appears.'],
+                ['Move it', 'Drag it with one finger.'],
+                ['Turn it', 'Twist two fingers on the screen.'],
+              ].map(([title, body], i) => (
+                <li key={title} className="flex gap-3">
+                  <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-stone-900 text-xs font-semibold text-white">{i + 1}</span>
+                  <span>
+                    <b className="font-semibold text-stone-900">{title}.</b> {body}
+                  </span>
+                </li>
+              ))}
+            </ol>
+            <p className="mt-3 text-xs leading-relaxed text-stone-500">
+              It is shown at its real size, so pinching will not resize it. Close the camera view to come back here.
+            </p>
+            <div className="mt-4 flex gap-2">
+              <button
+                type="button"
+                autoFocus
+                onClick={openAr}
+                className="h-11 flex-1 rounded-full bg-stone-900 px-4 text-sm font-semibold text-white hover:bg-stone-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
+              >
+                Open camera
+              </button>
+              <button
+                type="button"
+                onClick={() => setGuideOpen(false)}
+                className="h-11 rounded-full px-4 text-sm font-semibold text-stone-600 hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
+              >
+                Not now
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

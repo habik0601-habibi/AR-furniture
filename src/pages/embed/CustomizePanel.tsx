@@ -97,7 +97,7 @@ export function CustomizePanel(props: {
           <Toggle on={props.showHotspots} onChange={props.setShowHotspots} icon="info" label="Details" />
         </div>
         <p className="mt-3 text-sm text-ink-2">
-          Drag to rotate, pinch or scroll to zoom. On a phone, tap <b>View in AR</b> to place it on your floor at real size.
+          Drag to rotate, pinch or scroll to zoom. On a phone, tap <b>View in AR</b> to place it on your floor at real size. In the camera view, drag with one finger to move it and twist two fingers to turn it.
         </p>
       </section>
 

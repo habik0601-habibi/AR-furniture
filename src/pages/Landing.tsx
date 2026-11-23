@@ -35,6 +35,12 @@ export default function Landing() {
         </div>
       </header>
 
+      <div className="border-b border-line bg-paper-2/70">
+        <p className="mx-auto max-w-6xl px-4 py-2 text-center text-[13px] leading-snug text-ink-2 sm:px-6">
+          Project made under the supervision of <strong className="whitespace-nowrap font-semibold text-ink">Dr Amir Rasheed</strong>
+        </p>
+      </div>
+
       <main>
         {/* hero */}
         <section className="grid-paper border-b border-line">
