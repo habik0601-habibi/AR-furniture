@@ -36,7 +36,7 @@ export default function Landing() {
       </header>
 
       <div className="border-b border-line bg-paper-2/70">
-        <p className="mx-auto max-w-6xl px-4 py-3 text-center text-[26px] leading-snug text-ink-2 sm:px-6">
+        <p className="mx-auto max-w-6xl px-4 py-3 text-center text-[19.5px] leading-snug text-ink-2 sm:px-6">
           Project made under the supervision of <strong className="whitespace-nowrap font-semibold text-ink">Dr Amir Rasheed</strong>
         </p>
       </div>
