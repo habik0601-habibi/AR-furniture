@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
-import { fetchStoreProduct, type Store, type StoreProduct } from '../../lib/catalogApi'
+import type { Store, StoreProduct } from '../../lib/catalogApi'
+import { fetchStoreProductWithLocal as fetchStoreProduct } from '../../lib/localTest'
 import { track } from '../../lib/track'
 import { configuredPrice, pkr } from '../../engine/pricing'
 import { ProductViewer } from '../../components/ProductViewer'

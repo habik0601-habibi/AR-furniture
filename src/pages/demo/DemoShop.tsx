@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { fetchProducts, fetchStore, type Store, type StoreProduct } from '../../lib/catalogApi'
+import { withLocalTestProducts } from '../../lib/localTest'
 import { pkr } from '../../engine/pricing'
 import { Icon } from '../../components/Icon'
 import { Spinner } from '../../components/ui'
@@ -65,7 +66,7 @@ export default function DemoShop() {
     setError(null)
     fetchStore(storeSlug)
       .then(async (s) => {
-        const p = await fetchProducts(s.id)
+        const p = withLocalTestProducts(s.slug, await fetchProducts(s.id))
         if (!alive) return
         setStore(s)
         setProducts(p)

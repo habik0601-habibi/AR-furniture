@@ -26,3 +26,7 @@ dist-ssr
 # local
 .claude/
 scripts/models/raw/
+
+# third-party models used only for private local testing: never commit or deploy
+public/local-test/
+src/data/local-test/
