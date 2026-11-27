@@ -20,6 +20,42 @@ const steps = [
   { n: '03', title: 'Shoppers see it at home', body: 'They measure, place, check the fit and the delivery cost, then send you the configuration.' },
 ]
 
+/** Same figures as the "International tools" table in the novelty document (checked 27 Nov 2026). */
+const comparison: { name: string; url?: string; ours?: boolean; cells: string[] }[] = [
+  {
+    name: 'RoomSense',
+    ours: true,
+    cells: ['Widget any furniture site adds with two lines', 'Yes', 'Yes', 'Yes, in rupees for 11 Pakistani cities', 'Proposed: Rs 4,00,000 setup + Rs 50,000 a month'],
+  },
+  {
+    name: 'Threekit',
+    url: 'https://www.threekit.com/pricing',
+    cells: ['3D configurator and quoting software for manufacturers', 'Yes', 'Not shown', 'Not shown', 'Custom quote only. Estimates: about $500 to $2,000 a month'],
+  },
+  {
+    name: 'Zakeke',
+    url: 'https://admin.zakeke.com/en-US/pricing',
+    cells: [
+      'Product customizer app for Shopify and WooCommerce',
+      'Yes, in every plan',
+      'Not shown',
+      'Not shown',
+      '$69.90 / $129.90 / $299.90 a month for 10 / 50 / 100 products, plus 1.9% to 1.5% of each custom sale. Enterprise by quote',
+    ],
+  },
+  {
+    name: 'Roomvo',
+    url: 'https://get.roomvo.com/',
+    cells: [
+      "Shows products in a photo of the shopper's room, mainly flooring",
+      '3D samples; AR not shown',
+      'Room photo only; no layout or fit check',
+      'Not shown',
+      'Not published (book a demo). Estimates: $49 per user to €179 a month',
+    ],
+  },
+]
+
 export default function Landing() {
   return (
     <div className="min-h-dvh">
@@ -154,6 +190,50 @@ export default function Landing() {
               </p>
             </div>
           </div>
+        </section>
+
+        {/* comparison */}
+        <section id="compare" className="mx-auto max-w-6xl px-4 pt-16 sm:px-6">
+          <Kicker>How it compares</Kicker>
+          <h2 className="mt-3 max-w-3xl text-3xl text-ink sm:text-4xl">Others show the product. RoomSense checks the room and the delivery.</h2>
+          <p className="mt-6 text-xs text-muted md:hidden">Swipe the table sideways to see every column.</p>
+          <div className="mt-2 overflow-x-auto rounded-2xl border border-line bg-card shadow-soft md:mt-8">
+            <table className="w-full min-w-[820px] border-collapse text-left text-sm">
+              <thead>
+                <tr className="border-b border-line bg-paper-2/70 text-ink">
+                  {['Product', 'What it is', '3D and AR', 'Measures room, auto layout, fit check', 'Delivery-path check and local delivery cost', 'Price and plans'].map((h) => (
+                    <th key={h} scope="col" className="px-4 py-3 align-bottom font-semibold">
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="text-ink-2">
+                {comparison.map((r) => (
+                  <tr key={r.name} className={`border-b border-line last:border-0 ${r.ours ? 'bg-clay/[0.07]' : ''}`}>
+                    <th scope="row" className="px-4 py-3 align-top font-semibold text-ink">
+                      {r.url ? (
+                        <a href={r.url} target="_blank" rel="noreferrer" className="underline decoration-line underline-offset-2 hover:decoration-ink">
+                          {r.name}
+                        </a>
+                      ) : (
+                        <span className="text-clay">{r.name}</span>
+                      )}
+                    </th>
+                    {r.cells.map((c, i) => (
+                      <td key={i} className={`px-4 py-3 align-top leading-relaxed ${c === 'Not shown' ? 'text-muted' : ''}`}>
+                        {c}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-3 text-xs leading-relaxed text-muted">
+            Checked 27 November 2026 on each product's own pages. "Not shown" means not found there; no competitor was tried hands-on. Zakeke's prices are from its pricing
+            page; Threekit and Roomvo price by quote, so their figures are software-directory estimates. RoomSense's price is an illustrative proposal.
+          </p>
         </section>
 
         {/* demos */}
